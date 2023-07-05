@@ -3,6 +3,7 @@ package com.inti.model;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,6 +26,7 @@ public class ChefOrchestre {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private String nom;
+	@Column(length = 10)
 	private String prenom;
 	private LocalDate dateNaissance;
 	private String nationalite;
