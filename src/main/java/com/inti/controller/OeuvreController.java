@@ -1,74 +1,90 @@
 package com.inti.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.inti.model.Oeuvre;
 import com.inti.repository.IOeuvreRepository;
 
 import lombok.NonNull;
 
-@Controller
-@RequestMapping("oeuvre")
+@RestController
+@CrossOrigin(origins = "http://localhost:4200")
 public class OeuvreController {
 	
 	@Autowired
 	IOeuvreRepository ior;
 	
-	@GetMapping("creerOeuvre")
-	public String formOeuvre() {
-		return "creerOeuvre";
-	}
 
-	@PostMapping("creerOeuvre")
-	public String saveOeuvre(@ModelAttribute("oeuvre") Oeuvre o) {
-		ior.save(o);
-		return "redirect:/oeuvre/listeOeuvre";
+	@PostMapping("saveOeuvre")
+	public boolean saveOeuvre(@RequestBody Oeuvre oeuvre) {
+		try {
+			ior.save(oeuvre);
+			return true;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	@GetMapping("listeOeuvre")
-	public String listeOeuvre(Model m) {
-		m.addAttribute("listeOeuvre", ior.findAll().toArray());
-		return "listeOeuvre";
+	public List<Oeuvre> listeOeuvre() {
+		return ior.findAll();
 	}
-
+	
 	
 	@GetMapping("deleteOeuvre/{id}")
-	public String deleteOeuvre(@PathVariable("id") int id) {
-		ior.deleteById(id);
-		return "redirect:/oeuvre/listeOeuvre";
-	}
+	public boolean deleteOeuvre(@PathVariable("id") int id) {
+		
+		try {
+			Oeuvre o = ior.getReferenceById(id);
+			System.out.println(o); //permet de déclencher l'exception retourné par getReferenceById()
+			ior.delete(o);
+			return true;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}	
 	
-	@GetMapping("modifierOeuvre/{id}")
-	public String modifierOeuvre(@PathVariable("id") int id, Model m)
+	@GetMapping("getOeuvre/{id}")
+	public Oeuvre getOeuvre(@PathVariable("id") int id)
 	{
-		m.addAttribute("oeuvre", ior.findById(id).get());
-		return "modifierOeuvre";
+		Oeuvre o = null;
+		try {
+			o = ior.findById(id).get();
+			return o;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return o;
 	}
 	
 	@PostMapping("modifierOeuvre")
-	public String updateOeuvre(@ModelAttribute("oeuvre") Oeuvre o)
+	public boolean modifierOeuvre(@RequestBody Oeuvre oeuvre)
 	{
-		ior.save(o); // = saveOrUpdate
-		return "redirect:/oeuvre/listeOeuvre";
+		try {
+			ior.save(oeuvre);
+			return true;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
-	
-
-	
-	@GetMapping("getOeuvre/{idOeuvre}")
-	public String getConcert(@PathVariable("idOeuvre") int idOeuvre, Model m)
-	{
-		m.addAttribute("o1", ior.findById(idOeuvre).get());
-		
-		return "getOeuvre";
-	}
-	
 
 }
